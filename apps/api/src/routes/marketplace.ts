@@ -1,6 +1,7 @@
 /**
  * Template marketplace endpoints.
- * Public templates can be browsed, cloned, and rated by any authenticated user.
+ * Public templates can be browsed by anyone; cloning, publishing, and
+ * reporting require an authenticated user.
  */
 import { Hono } from 'hono';
 import { z } from 'zod';
@@ -19,10 +20,14 @@ import {
 
 const app = new Hono();
 
+// Public browse routes — no API key required, mounted separately in index.ts
+// ahead of the v1 auth gate. Mutating/admin routes below stay on `app`.
+export const publicMarketplaceApp = new Hono();
+
 /**
  * GET / - Browse public templates in the marketplace.
  */
-app.get('/', async (c) => {
+publicMarketplaceApp.get('/', async (c) => {
   const limit = Math.min(parseInt(c.req.query('limit') || '20') || 20, 100);
   const offset = Math.max(parseInt(c.req.query('offset') || '0') || 0, 0);
   const category = c.req.query('category');
@@ -59,7 +64,7 @@ app.get('/', async (c) => {
 /**
  * GET /:id - Get a public template's details.
  */
-app.get('/:id', async (c) => {
+publicMarketplaceApp.get('/:id', async (c) => {
   const id = c.req.param('id');
 
   const [tmpl] = await db

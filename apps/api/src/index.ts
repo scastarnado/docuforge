@@ -32,7 +32,7 @@ import starterTemplatesRoutes from './routes/starter-templates.js';
 import batchRoutes from './routes/batch.js';
 import pdfToolsRoutes from './routes/pdf-tools.js';
 import aiRoutes from './routes/ai.js';
-import marketplaceRoutes from './routes/marketplace.js';
+import marketplaceRoutes, { publicMarketplaceApp } from './routes/marketplace.js';
 import integrationsRoutes from './routes/integrations.js';
 import billingRoutes, { billingWebhookApp } from './routes/billing.js';
 import fontsRoutes from './routes/fonts.js';
@@ -54,6 +54,7 @@ app.use('*', securityHeadersMiddleware);
 
 // IP-based rate limiting for public routes
 app.use('/v1/starter-templates/*', ipRateLimitMiddleware);
+app.use('/v1/marketplace/*', ipRateLimitMiddleware);
 
 // Public routes
 app.get('/robots.txt', (c) => c.text('User-agent: *\nDisallow: /\n'));
@@ -99,6 +100,9 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Public starter templates browser
 app.route('/v1/starter-templates', starterTemplatesRoutes);
+
+// Public marketplace browser
+app.route('/v1/marketplace', publicMarketplaceApp);
 
 // Protected routes
 const v1 = new Hono();
